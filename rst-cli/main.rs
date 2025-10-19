@@ -1,5 +1,7 @@
+use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, str::FromStr};
+
 use clap::{error::Result, Parser, Subcommand};
-use rst_core::progress::{Progress, RecvByteCounter, SendProgressBar};
+use rst_core::{recv_file, send_file};
 
 #[derive(Parser)]
 #[command(name = "rst", version, author, about = "Raw Socket Transfer Tool")]
@@ -64,16 +66,17 @@ fn main() -> Result<()> {
             gzip,
             force_close,
         } => {
-            // TODO: Implement
-            let total = 10000;
-            let mut pb = SendProgressBar::new(total, 30);
-
-            for _ in 0..100 {
-                pb.update(100);
-                std::thread::sleep(std::time::Duration::from_millis(20));
+            // For now add not implemented warnings
+            if gzip {
+                eprintln!("Gzip compression is not implemented yet");
+            }
+            if force_close {
+                eprintln!("Force close is not implemented yet");
             }
 
-            pb.finish();
+            // Send file over raw TCP
+            let stream = create_stream(&host, port);
+            send_file(stream, &file);
         }
         Commands::Recv {
             file,
@@ -81,17 +84,28 @@ fn main() -> Result<()> {
             decompress,
             force_close,
         } => {
-            // TODO: Implement
-            let mut pb = RecvByteCounter::new();
-
-            for _ in 0..50 {
-                pb.update(200);
-                std::thread::sleep(std::time::Duration::from_millis(40));
+            // For now add not implemented warnings
+            if decompress {
+                eprintln!("Gzip decompression is not implemented yet");
+            }
+            if force_close {
+                eprintln!("Force close is not implemented yet");
             }
 
-            pb.finish();
+            // Listen for incoming connection
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).expect("Failed to bind to port");
+            let stream = listener.incoming().next().expect("Failed to accept connection").unwrap();
+
+            // Receive file over raw TCP
+            recv_file(stream, &file);
         }
     }
 
     Ok(())
+}
+
+fn create_stream(host: &str, port: u16) -> TcpStream {
+    let ip = IpAddr::from_str(host).expect("Host must be an IP address");
+    let addr = SocketAddr::new(ip, port);
+    TcpStream::connect(addr).expect("Failed to connect to host")
 }
