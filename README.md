@@ -39,3 +39,12 @@ rst send --file ./video.mp4 --host 192.168.0.42 --gzip
 ```bash
 rst recv --file ./video.mp4 --port 7777 --decompress
 ```
+
+## License
+MIT License
+
+## Contributing
+Pull requests are welcome. See issues for TODOs like:
+- [ ] Multi-file support (via tar streaming)
+- [ ] Encryption support (via TLS)
+- [ ] Pipe-to-stdout or stdin integration

@@ -1,4 +1,5 @@
 use clap::{error::Result, Parser, Subcommand};
+use rst_core::progress::{Progress, RecvByteCounter, SendProgressBar};
 
 #[derive(Parser)]
 #[command(name = "rst", version, author, about = "Raw Socket Transfer Tool")]
@@ -64,6 +65,15 @@ fn main() -> Result<()> {
             force_close,
         } => {
             // TODO: Implement
+            let total = 10000;
+            let mut pb = SendProgressBar::new(total, 30);
+
+            for _ in 0..100 {
+                pb.update(100);
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+
+            pb.finish();
         }
         Commands::Recv {
             file,
@@ -72,6 +82,14 @@ fn main() -> Result<()> {
             force_close,
         } => {
             // TODO: Implement
+            let mut pb = RecvByteCounter::new();
+
+            for _ in 0..50 {
+                pb.update(200);
+                std::thread::sleep(std::time::Duration::from_millis(40));
+            }
+
+            pb.finish();
         }
     }
 
