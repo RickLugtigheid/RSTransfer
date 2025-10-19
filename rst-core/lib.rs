@@ -1,4 +1,5 @@
 pub mod progress;
+pub mod error;
 
 use std::{io::{Read, Write}, net::TcpStream};
 use sha2::{Sha256, Digest};
@@ -6,9 +7,17 @@ use sha2::{Sha256, Digest};
 use crate::progress::{Progress, RecvByteCounter, SendProgressBar};
 
 pub fn send_file(mut stream: TcpStream, file_path: &str) {
-    let mut file = std::fs::File::open(file_path).expect("Failed to open file");
+    // Open the file
+    let file = std::fs::File::open(file_path);
+    if file.is_err() {
+        error::Error::FileNotFound(file_path.to_string()).exit();
+    }
+    let mut file = file.unwrap();
+
+    // Get the total file size
     let total_bytes = file.metadata().unwrap().len();
 
+    // Initialize the progress bar
     let mut progress = SendProgressBar::new(total_bytes, 30);
     let mut buffer = [0u8; 4096];
     

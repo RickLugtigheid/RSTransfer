@@ -1,7 +1,7 @@
 use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, str::FromStr};
 
 use clap::{error::Result, Parser, Subcommand};
-use rst_core::{recv_file, send_file};
+use rst_core::{recv_file, send_file, error::Error};
 
 #[derive(Parser)]
 #[command(name = "rst", version, author, about = "Raw Socket Transfer Tool")]
@@ -77,7 +77,14 @@ fn main() -> Result<()> {
             }
 
             // Listen for incoming connection
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).expect("Failed to bind to port");
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", port));
+            if listener.is_err() {
+                Error::UnableToListen(port).exit();
+            }
+            let listener = listener.unwrap();
+            
+            // Accept connection
+            // TODO: Add (better) error handling
             let stream = listener.incoming().next().expect("Failed to accept connection").unwrap();
 
             // Receive file over raw TCP
@@ -88,8 +95,17 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// Create a TCP stream to the specified host and port
 fn create_stream(host: &str, port: u16) -> TcpStream {
-    let ip = IpAddr::from_str(host).expect("Host must be an IP address");
-    let addr = SocketAddr::new(ip, port);
-    TcpStream::connect(addr).expect("Failed to connect to host")
+    let ip = IpAddr::from_str(host);
+    if ip.is_err() {
+        Error::InvalidHost(host.to_string()).exit();
+    }
+
+    let addr = SocketAddr::new(ip.unwrap(), port);
+    let stream = TcpStream::connect(addr);
+    if stream.is_err() {
+        Error::UnableToConnect(host.to_string(), port).exit();
+    }
+    stream.unwrap()
 }
