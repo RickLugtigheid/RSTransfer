@@ -38,6 +38,12 @@ rst send --file ./video.mp4 --host 192.168.0.42 --gzip
 rst recv --file ./video.mp4 --port 7777 --decompress
 ```
 
+## Building from source
+```bash
+cargo build --release
+```
+This will create a `target/release/rst` executable in the project root.
+
 ## License
 MIT License
 

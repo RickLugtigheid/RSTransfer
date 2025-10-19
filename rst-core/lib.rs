@@ -17,7 +17,7 @@ pub fn send_file(mut stream: TcpStream, file_path: &str) {
     // Get the total file size
     let total_bytes = file.metadata().unwrap().len();
 
-    // Initialize the progress bar
+    // Initialize the progress bar and buffer
     let mut progress = SendProgressBar::new(total_bytes, 30);
     let mut buffer = [0u8; 4096];
     
