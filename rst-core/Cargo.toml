@@ -7,3 +7,6 @@ edition = "2024"
 [lib]
 name = "rst_core"
 path = "lib.rs"
+
+[dependencies]
+sha2 = "0.10.9"

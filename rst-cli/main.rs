@@ -30,10 +30,6 @@ enum Commands  {
         /// Compress file using gzip
         #[arg(long)]
         gzip: bool,
-
-        /// Force close using -N / -q 0
-        #[arg(long)]
-        force_close: bool,
     },
     /// Receive a file over raw TCP
     Recv {
@@ -48,10 +44,6 @@ enum Commands  {
         /// Decompress gzip stream
         #[arg(long)]
         decompress: bool,
-
-        /// Force close using -N / -q 0
-        #[arg(long)]
-        force_close: bool,
     },
 }
 
@@ -64,14 +56,10 @@ fn main() -> Result<()> {
             host,
             port,
             gzip,
-            force_close,
         } => {
             // For now add not implemented warnings
             if gzip {
                 eprintln!("Gzip compression is not implemented yet");
-            }
-            if force_close {
-                eprintln!("Force close is not implemented yet");
             }
 
             // Send file over raw TCP
@@ -82,14 +70,10 @@ fn main() -> Result<()> {
             file,
             port,
             decompress,
-            force_close,
         } => {
             // For now add not implemented warnings
             if decompress {
                 eprintln!("Gzip decompression is not implemented yet");
-            }
-            if force_close {
-                eprintln!("Force close is not implemented yet");
             }
 
             // Listen for incoming connection

@@ -1,6 +1,7 @@
 pub mod progress;
 
 use std::{io::{Read, Write}, net::TcpStream};
+use sha2::{Sha256, Digest};
 
 use crate::progress::{Progress, RecvByteCounter, SendProgressBar};
 
@@ -24,6 +25,15 @@ pub fn send_file(mut stream: TcpStream, file_path: &str) {
     }
 
     progress.finish();
+
+    let sha256 = sha256_file(file_path);
+    if sha256.is_none() {
+        return;
+    }
+    println!("SHA256 of send file: \n{}", sha256.unwrap());
+    
+    println!("--------------------------------------------------\n");
+    println!("The file was successfully received. To verify integrity, compare the checksum with the sender's provided value.");
 }
 
 pub fn recv_file(mut stream: TcpStream, file_path: &str) {
@@ -45,4 +55,43 @@ pub fn recv_file(mut stream: TcpStream, file_path: &str) {
     }
 
     progress.finish();
+
+    let sha256 = sha256_file(file_path);
+    if sha256.is_none() {
+        return;
+    }
+    println!("SHA256 of received file: \n{}", sha256.unwrap());
+    
+    println!("--------------------------------------------------\n");
+    println!("File transfer complete.");
+    println!("You can verify the integrity of the transferred file by comparing its checksum with the one generated here.");
+}
+
+fn sha256_file(file_path: &str) -> Option<String> {
+    // Attempt to open the file
+    let file = match std::fs::File::open(file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("Failed to open file '{}': {}", file_path, e);
+            return None;
+        }
+    };
+
+    let mut reader = std::io::BufReader::new(file);
+    let mut hasher = Sha256::new();
+    let mut buffer = [0u8; 8192]; // 8 KB buffer
+
+    // Read the file in chunks and update the hasher
+    loop {
+        match reader.read(&mut buffer) {
+            Ok(0) => break, // EOF
+            Ok(n) => hasher.update(&buffer[..n]),
+            Err(e) => {
+                eprintln!("Error reading file '{}': {}", file_path, e);
+                return None;
+            }
+        }
+    }
+
+    Some(format!("{:x}", hasher.finalize()))
 }

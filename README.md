@@ -17,7 +17,6 @@ rst send --file <path> --host <ip> [--port <port>] [--gzip] [--force-close]
 - `--host`: Destination IP or hostname
 - `--port`: Port to connect to (default: 7777)
 - `--gzip`: Compress the file using gzip before sending
-- `--force-close`: Send EOF immediately using -N or -q 0 style behavior (helpful with netcat-style receivers)
 
 ### Receiving
 ```bash
@@ -26,7 +25,6 @@ rst recv --file <path> [--port <port>] [--decompress] [--force-close]
 - `--file`: Destination file to save received data
 - `--port`: Port to listen on (default: `7777`)
 - `--decompress`: Decompress using gzip (must match sender's `--gzip`)
-- `--force-close`: Attempt early close of socket (experimental)
 
 ## Examples
 
