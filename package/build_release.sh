@@ -116,12 +116,19 @@ done
 # Check for required commands
 require_command "rustc"
 require_command "cargo"
+require_command "rustup"
 
 # ---- Build Functions ----
 
 function build_debian() {
     BUILD_TARGET="x86_64-unknown-linux-gnu"
     echo "Building Debian package..."
+
+    # Install the Debian target if not already installed
+    if ! rustup show target | grep -q "$BUILD_TARGET"; then
+        echo "Installing Linux target ($BUILD_TARGET)..."
+        rustup target add $BUILD_TARGET
+    fi
 
     # Create a temporary directory for the debian package
     TEMP_PACKAGE_DIR=$(mktemp -d)
@@ -169,20 +176,29 @@ function build_windows() {
     BUILD_TARGET="x86_64-pc-windows-gnu"
     echo "Building for Windows..."
 
-    require_command "rustup"
-
     # Install the Windows target if not already installed
-    if ! rustup target list | grep -q "$BUILD_TARGET"; then
+    if ! rustup show target | grep -q "$BUILD_TARGET"; then
         echo "Installing Windows target..."
         rustup target add $BUILD_TARGET
+        
+        echo "Installing 'mingw-w64' linker for Windows target..."
+        run_root_or_sudo apt-get install mingw-w64
     fi
 
+    # Clean release build directory
+    echo "Cleaning release build directory..."
+    rm -rf "$SRC_DIR/../target"
+
     # Build the Windows binary in release mode
+    echo "Building the Rust binary for Windows..."
+    CURRENT_DIR=$(pwd)
+    cd "$SRC_DIR"
     cargo build --release --target $BUILD_TARGET
+    cd "$CURRENT_DIR"
 
     # Copy the binary to a Windows-compatible location
     BIN_DIR="target/$BUILD_TARGET/release"
-    cp "$BIN_DIR/rst-cli.exe" "./rst-$VERSION-x86_64-windows.exe"
+    cp "$SRC_DIR/../target/$BUILD_TARGET/release/rst.exe" "./rst-$VERSION-x86_64-windows.exe"
 
     echo "Windows binary created: rst-$VERSION-x86_64-windows.exe (in $PWD)"
 
