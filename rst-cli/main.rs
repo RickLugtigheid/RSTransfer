@@ -1,12 +1,16 @@
 use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, path::Path, str::FromStr};
 
 use clap::{error::Result, Parser, Subcommand};
-use rst_core::{recv_file, send_file, error::Error};
+use rst_core::{error::Error, print_verbose, recv_file, send_file, RecvOptions, SendOptions};
 
 #[derive(Parser)]
 #[command(name = "rst", version, author, about = "Raw Socket Transfer Tool")]
 #[clap(disable_help_flag = true)]
 struct Cli {
+    #[arg(short, long, global = true, action = clap::ArgAction::Count)]
+    /// Set verbosity level (e.g., -v, -vv, -vvv)
+    verbose: u8,
+
     #[command(subcommand)]
     command: Commands
 }
@@ -66,14 +70,17 @@ fn main() -> Result<()> {
             
             // Send file over raw TCP
             let stream = create_stream(&host, port);
-            send_file(stream, &file, gzip);
+            let options = SendOptions {
+                gzip,
+                verbose: cli.verbose,
+            };
+            send_file(stream, &file, options);
         }
         Commands::Recv {
             file,
             port,
             decompress,
         } => {
-
             // Before starting, check if the file already exists
             // if so ask the user if they want to overwrite it.
             //
@@ -97,6 +104,9 @@ fn main() -> Result<()> {
             // Accept (one) connection.
             // Loop unil we get a successful connection (or Ctrl-C)
             // 
+            if cli.verbose >= 1 {
+                print_verbose!("Waiting for incoming connection...");
+            }
             let stream = loop {
                 match listener.incoming().next() {
                     Some(Ok(s)) => break s,
@@ -108,7 +118,11 @@ fn main() -> Result<()> {
             };
 
             // Receive file over raw TCP
-            recv_file(stream, &file, decompress);
+            let options = RecvOptions {
+                decompress,
+                verbose: cli.verbose,
+            };
+            recv_file(stream, &file, options);
         }
     }
 
