@@ -64,7 +64,7 @@ fn main() -> Result<()> {
 
             // Send file over raw TCP
             let stream = create_stream(&host, port);
-            send_file(stream, &file);
+            send_file(stream, &file, gzip);
         }
         Commands::Recv {
             file,
@@ -88,7 +88,7 @@ fn main() -> Result<()> {
             let stream = listener.incoming().next().expect("Failed to accept connection").unwrap();
 
             // Receive file over raw TCP
-            recv_file(stream, &file);
+            recv_file(stream, &file, decompress);
         }
     }
 
