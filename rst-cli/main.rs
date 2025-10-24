@@ -1,4 +1,4 @@
-use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, str::FromStr};
+use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, path::Path, str::FromStr};
 
 use clap::{error::Result, Parser, Subcommand};
 use rst_core::{recv_file, send_file, error::Error};
@@ -57,11 +57,13 @@ fn main() -> Result<()> {
             port,
             gzip,
         } => {
-            // For now add not implemented warnings
-            if gzip {
-                eprintln!("Gzip compression is not implemented yet");
+            // Before starting, check if the file exists
+            //
+            if !Path::new(&file).exists() {
+                Error::FileNotFound(file).exit();
+                return Ok(());
             }
-
+            
             // Send file over raw TCP
             let stream = create_stream(&host, port);
             send_file(stream, &file, gzip);
@@ -71,9 +73,18 @@ fn main() -> Result<()> {
             port,
             decompress,
         } => {
-            // For now add not implemented warnings
-            if decompress {
-                eprintln!("Gzip decompression is not implemented yet");
+
+            // Before starting, check if the file already exists
+            // if so ask the user if they want to overwrite it.
+            //
+            if Path::new(&file).exists() {
+                println!("File '{}' already exists. Overwrite? (y/n)", file);
+                let mut input = String::new();
+                std::io::stdin().read_line(&mut input).unwrap();
+                if input.trim() != "y" {
+                    println!("Aborting transfer.");
+                    return Ok(());
+                }
             }
 
             // Listen for incoming connection
@@ -83,9 +94,18 @@ fn main() -> Result<()> {
             }
             let listener = listener.unwrap();
             
-            // Accept connection
-            // TODO: Add (better) error handling
-            let stream = listener.incoming().next().expect("Failed to accept connection").unwrap();
+            // Accept (one) connection.
+            // Loop unil we get a successful connection (or Ctrl-C)
+            // 
+            let stream = loop {
+                match listener.incoming().next() {
+                    Some(Ok(s)) => break s,
+                    Some(Err(e)) => {
+                        println!("Error accepting connection: {}", e);
+                    }
+                    None => { }
+                }
+            };
 
             // Receive file over raw TCP
             recv_file(stream, &file, decompress);

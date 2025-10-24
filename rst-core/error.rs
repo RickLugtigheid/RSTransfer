@@ -5,6 +5,9 @@ pub enum Error {
     UnableToListen(u16),
 
     FileNotFound(String),
+
+    ReadFailed,
+    WriteFailed,
 }
 
 impl Error {
@@ -23,6 +26,9 @@ impl std::fmt::Display for Error {
             Error::UnableToListen(port) => write!(f, "{} Unable to listen on port '{}'", prefix, port),
 
             Error::FileNotFound(file) => write!(f, "{} File not found: {}", prefix, file),
+
+            Error::ReadFailed => write!(f, "{} Read failed", prefix),
+            Error::WriteFailed => write!(f, "{} Write failed", prefix),
         }
     }
 }
