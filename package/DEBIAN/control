@@ -1,9 +1,0 @@
-Package: rst
-Version: <Version>
-Architecture: amd64
-Maintainer: Rick Lugtigheid <rlugtigheid77@gmail.com>
-Installed-Size: 1024
-Depends: libc6 (>= 2.7)
-Section: utils
-Priority: optional
-Description: A lightweight command-line tool for Raw Socket Transfer, enabling simple and fast file or data transfer over raw TCP sockets without additional protocols.

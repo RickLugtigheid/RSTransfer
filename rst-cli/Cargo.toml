@@ -1,8 +1,10 @@
 
 [package]
 name = "rst-cli"
-description = "The RSTransfer command-line interface"
-version = "0.1.0"
+version = "1.0.0"
+description = "A lightweight command-line tool for Raw Socket (file) Transfer."
+authors = ["Rick Lugtigheid <rlugtigheid77@gmail.com>"]
+license = "MIT"
 edition = "2024"
 
 [[bin]]
