@@ -2,8 +2,8 @@ name: Build Debian Package
 
 on:
   push:
-    tags:
-      - 'v*'  # Trigger only for version tags like v1.0.0, v2.1.0, etc.
+    branches:
+      - main
 
 jobs:
   build:
@@ -42,9 +42,9 @@ jobs:
           cargo deb --no-build -p rst-cli  # Generate the .deb package
           cd ../../../
 
-      # Step 6: Upload .deb package to GitHub Release
-      - name: Upload .deb package to GitHub Release
-        uses: ncipollo/release-action@v1.11  # Use updated version of release-action
+      # Step 6: Upload .deb package
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
         with:
-          artifacts: './target/debian/*.deb'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: debain-package
+          path: ./target/debian/*.deb
