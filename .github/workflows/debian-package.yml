@@ -17,7 +17,7 @@ jobs:
 
       # Set up Rust
       - name: Set up Rust
-        uses: actions/setup-rust@v1
+        uses: actions/setup-rust@v2
         with:
           rust-version: stable  # Use the latest stable version of Rust
 
@@ -35,7 +35,7 @@ jobs:
 
       # Upload the .deb package to GitHub Release
       - name: Upload .deb package to GitHub Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.11
         with:
           artifacts: './target/debian/*.deb'
           token: ${{ secrets.GITHUB_TOKEN }}
