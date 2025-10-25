@@ -1,0 +1,41 @@
+name: Build Debian Package
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger only for version tags like v1.0.0, v2.1.0, etc.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for Debian packaging
+
+    steps:
+
+      # Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up Rust
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable  # Use the latest stable version of Rust
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper
+
+      # Build the .deb package
+      - name: Build Debian package
+        run: |
+          cd rst-cli
+          cargo deb --no-build
+
+      # Upload the .deb package to GitHub Release
+      - name: Upload .deb package to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: './target/debian/*.deb'
+          token: ${{ secrets.GITHUB_TOKEN }}
