@@ -10,26 +10,32 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Latest version of actions/checkout
 
-      - name: Set up Rust
-        uses: actions/setup-rust@v2
-        with:
-          rust-version: stable  # Use the latest stable version of Rust
+      # Step 2: Install rustup and Rust
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          source $HOME/.cargo/env  # Ensure cargo is in the environment
 
-      - name: Install required toolchain for Windows
+      # Step 3: Install required toolchain for Windows
+      - name: Install Windows toolchain
         run: |
           rustup target add x86_64-pc-windows-gnu
           rustup component add rust-src
 
+      # Step 4: Build for Windows
       - name: Build for Windows
         run: |
           cd rst-cli
           cargo build --release --target x86_64-pc-windows-gnu
+          cd ../
 
+      # Step 5: Upload Windows executable
       - name: Upload Windows executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3  # Updated to latest v3
         with:
           name: windows-executable
           path: ./target/x86_64-pc-windows-gnu/release/rst.exe
