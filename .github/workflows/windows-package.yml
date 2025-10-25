@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout repository
@@ -24,6 +24,7 @@ jobs:
       - name: Install Windows toolchain
         run: |
           rustup target add x86_64-pc-windows-gnu
+          sudo apt-get install mingw-w64 # Install mingw-w64 linker for Windows target
           rustup component add rust-src
 
       # Step 4: Build for Windows
