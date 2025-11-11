@@ -1,0 +1,11 @@
+name: Feature request
+description: Create a feature request
+title: "[FR]: <title>"
+labels: ["Feature", "Status: Needs Triage"]
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: "Please provide a explanation of the requested feature."
+    validations:
+      required: true
