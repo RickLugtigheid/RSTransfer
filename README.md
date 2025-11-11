@@ -7,6 +7,31 @@ RSTransfer (`rst`) is a lightweight command-line tool for **raw TCP socket (file
 - Minimal dependencies; no TLS, HTTP, or other protocols
 - Designed for portability and raw speed
 
+## Installation
+
+### Option 1: Linux (Debian-based)
+You can install the latest `.deb` release directly:
+```bash
+wget https://github.com/RickLugtigheid/RSTransfer/releases/latest/download/rst_amd64.deb
+sudo apt-get install ./rst_amd64.deb
+rm ./rst_amd64.deb
+```
+
+### Option 2: Manual Installation (Using Cargo)
+If you have [Rust and Cargo](https://www.rust-lang.org/tools/install) installed:
+```bash
+git clone https://github.com/RickLugtigheid/RSTransfer.git
+cd RSTransfer/
+cargo install --path rst-cli/
+```
+After installation, the binary will typically be available in:
+- Linux/macOS: `~/.cargo/bin/rst`
+- Windows: `%USERPROFILE%\.cargo\bin\rst`
+> [!TIP]
+> If you're on **Windows**, make sure to add the Cargo bin directory to your system `PATH` so you can run `rst` from any terminal.
+>
+> If you're on **Linux**, make sure to move the generated binary to the `/usr/bin` directory so you can run `rst` from any terminal.
+
 ## Usage
 
 ### Sending
@@ -39,6 +64,7 @@ rst recv --file ./video.mp4 --port 7777 --decompress
 ```
 
 ## Building from source
+*Make sure you have [Rust and Cargo](https://www.rust-lang.org/tools/install) installed before running the following command:*
 ```bash
 cargo build --release
 ```
@@ -52,3 +78,4 @@ Pull requests are welcome. See issues for TODOs like:
 - [ ] Multi-file support (via tar streaming)
 - [ ] Encryption support (via TLS)
 - [ ] Pipe-to-stdout or stdin integration
+
