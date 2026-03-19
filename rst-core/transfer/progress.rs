@@ -26,8 +26,18 @@ impl SendProgressBar {
 
     /// Handles rendering of the progress bar to the console
     fn render(&self) {
-        let ratio = self.sent_bytes as f64 / self.total_bytes as f64;
+        let mut sent_bytes = self.sent_bytes;
+
+        // Just in case the send bytes exceeds the total bytes
+        //
+        if sent_bytes > self.total_bytes {
+            sent_bytes = self.total_bytes;
+        }
+
+        // Calculate the ratio of the sent bytes
+        let ratio = sent_bytes as f64 / self.total_bytes as f64;
         let filled = (ratio * self.width as f64).round() as usize;
+
         let progress = format!(
             "\r[{}{}] {:>3}%",
             "#".repeat(filled),
