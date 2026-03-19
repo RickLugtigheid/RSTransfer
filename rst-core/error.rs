@@ -5,6 +5,9 @@ pub enum Error {
     UnableToListen(u16),
 
     FileNotFound(String),
+    DirNotFound(String),
+    DirEmpty(String),
+    NoFileOrDir,
 
     ReadFailed,
     WriteFailed,
@@ -26,6 +29,9 @@ impl std::fmt::Display for Error {
             Error::UnableToListen(port) => write!(f, "{} Unable to listen on port '{}'", prefix, port),
 
             Error::FileNotFound(file) => write!(f, "{} File not found: {}", prefix, file),
+            Error::DirNotFound(dir) => write!(f, "{} Directory not found: {}", prefix, dir),
+            Error::DirEmpty(dir) => write!(f, "{} Directory is empty: {}", prefix, dir),
+            Error::NoFileOrDir => write!(f, "{} No file or directory specified", prefix),
 
             Error::ReadFailed => write!(f, "{} Read failed", prefix),
             Error::WriteFailed => write!(f, "{} Write failed", prefix),

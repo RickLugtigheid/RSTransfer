@@ -13,7 +13,8 @@ RSTransfer (`rst`) is a lightweight command-line tool for **raw TCP socket (file
 ```bash
 rst send --file <path> --host <ip> [--port <port>] [--gzip] [--force-close]
 ```
-- `--file`: File to send
+- `--file`: File to send ( use `--dir` to send a directory )
+- `--dir`: Directory to send ( use `--file` to send a single file )
 - `--host`: Destination IP or hostname
 - `--port`: Port to connect to (default: 7777)
 - `--gzip`: Compress the file using gzip before sending
@@ -23,6 +24,7 @@ rst send --file <path> --host <ip> [--port <port>] [--gzip] [--force-close]
 rst recv --file <path> [--port <port>] [--decompress] [--force-close]
 ```
 - `--file`: Destination file to save received data
+- `--dir`: Destination directory to save received data
 - `--port`: Port to listen on (default: `7777`)
 - `--decompress`: Decompress using gzip (must match sender's `--gzip`)
 

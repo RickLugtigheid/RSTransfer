@@ -1,7 +1,7 @@
 use std::{net::{IpAddr, SocketAddr, TcpListener, TcpStream}, path::Path, str::FromStr};
 
-use clap::{error::Result, Parser, Subcommand};
-use rst_core::{error::Error, print_verbose, transfer::file::*};
+use clap::{Parser, Subcommand, error::Result};
+use rst_core::{error::Error, print_verbose, transfer::{dir::{recv_dir, send_dir}, file::*, *}};
 
 #[derive(Parser)]
 #[command(name = "rst", version, author, about = "Raw Socket Transfer Tool")]
@@ -20,8 +20,12 @@ enum Commands  {
     /// Send a file over raw TCP
     Send {
         /// File to send
-        #[arg(short, long)]
+        #[arg(short, long, default_value = "")]
         file: String,
+
+        /// Directory to send
+        #[arg(short, long, default_value = "")]
+        dir: String,
 
         /// Host to send to
         #[arg(short, long)]
@@ -38,8 +42,12 @@ enum Commands  {
     /// Receive a file over raw TCP
     Recv {
         /// Destination file
-        #[arg(short, long)]
+        #[arg(short, long, default_value = "")]
         file: String,
+
+        /// Destination directory
+        #[arg(short, long, default_value = "")]
+        dir: String,
 
         /// Port to listen on [default: 7777]
         #[arg(short, long, default_value = "7777")]
@@ -57,40 +65,78 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::Send {
             file,
+            dir,
             host,
             port,
             gzip,
         } => {
-            // Before starting, check if the file exists
+
+            // Is file or dir specified?
             //
-            if !Path::new(&file).exists() {
-                Error::FileNotFound(file).exit();
-                return Ok(());
+            if file.is_empty() && dir.is_empty() {
+                Error::NoFileOrDir.exit();
             }
-            
-            // Send file over raw TCP
-            let stream = create_stream(&host, port);
-            let options = SendOptions {
-                gzip,
-                verbose: cli.verbose,
-            };
-            send_file(stream, &file, options);
+
+            // Handle file
+            //
+            if !file.is_empty() {
+
+                // Before starting, check if the file exists
+                //
+                if !Path::new(&file).exists() {
+                    Error::FileNotFound(file).exit();
+                    return Ok(());
+                }
+                
+                // Send file over raw TCP
+                let stream = create_stream(&host, port);
+                let options = SendOptions {
+                    gzip,
+                    verbose: cli.verbose,
+                };
+                send_file(stream, &file, options);
+            } else {
+                // Before starting, check if the directory exists
+                //
+                if !Path::new(&dir).exists() {
+                    Error::DirNotFound(dir).exit();
+                    return Ok(());
+                }
+
+                // Send dir over raw TCP
+                let stream = create_stream(&host, port);
+                let options = SendOptions {
+                    gzip,
+                    verbose: cli.verbose,
+                };
+                send_dir(stream, &dir, options);
+            }
         }
         Commands::Recv {
             file,
+            dir,
             port,
             decompress,
         } => {
-            // Before starting, check if the file already exists
-            // if so ask the user if they want to overwrite it.
+
+            // Is file or dir specified?
             //
-            if Path::new(&file).exists() {
-                println!("File '{}' already exists. Overwrite? (y/n)", file);
-                let mut input = String::new();
-                std::io::stdin().read_line(&mut input).unwrap();
-                if input.trim() != "y" {
-                    println!("Aborting transfer.");
-                    return Ok(());
+            if file.is_empty() && dir.is_empty() {
+                Error::NoFileOrDir.exit();
+            }
+
+            if !file.is_empty() {
+                // Before starting, check if the file already exists
+                // if so ask the user if they want to overwrite it.
+                //
+                if Path::new(&file).exists() {
+                    println!("File '{}' already exists. Overwrite? (y/n)", file);
+                    let mut input = String::new();
+                    std::io::stdin().read_line(&mut input).unwrap();
+                    if input.trim() != "y" {
+                        println!("Aborting transfer.");
+                        return Ok(());
+                    }
                 }
             }
 
@@ -117,12 +163,17 @@ fn main() -> Result<()> {
                 }
             };
 
-            // Receive file over raw TCP
+            // Receive file or dir over raw TCP
             let options = RecvOptions {
                 decompress,
                 verbose: cli.verbose,
             };
-            recv_file(stream, &file, options);
+
+            if !file.is_empty() {
+                recv_file(stream, &file, options);
+            } else {
+                recv_dir(stream, &dir, options);
+            }
         }
     }
 

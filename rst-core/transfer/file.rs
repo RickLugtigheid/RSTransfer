@@ -1,19 +1,7 @@
 use std::net::TcpStream;
 use flate2::{read::{GzDecoder}, write::GzEncoder, Compression};
 
-use crate::{error, io::stream::{write_file_to_stream, write_stream_to_file}, print_verbose, sha256_file, transfer::progress::{RecvByteCounter, SendProgressBar}};
-
-
-/// Options for sending a file over a TCP stream
-pub struct SendOptions {
-    pub gzip: bool,
-    pub verbose: u8,
-}
-/// Options for receiving a file over a TCP stream
-pub struct RecvOptions {
-    pub decompress: bool,
-    pub verbose: u8,
-}
+use crate::{error, io::stream::{write_file_to_stream, write_stream_to_file}, print_verbose, sha256_file, transfer::{*, progress::*}};
 
 /// Send a file over a TCP stream
 /// 

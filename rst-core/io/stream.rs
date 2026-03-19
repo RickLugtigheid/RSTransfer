@@ -1,6 +1,57 @@
-use std::{fs, io::{Read, Write}};
+use std::{fs, io::{Read, Result, Write}};
 
 use crate::{error, transfer::progress::{Progress, RecvByteCounter, SendProgressBar}};
+
+/// Wrapper for a IO (stream) writer that also tracks progress
+pub struct ProgressWriter<W: Write, P: Progress> {
+    writer: W,
+    progress: P,
+}
+
+
+impl<W: Write, P: Progress> ProgressWriter<W, P> {
+    pub fn new(writer: W, progress: P) -> Self {
+        Self { writer, progress }
+    }
+
+    pub fn finish(mut self) -> W {
+        self.progress.finish();
+        self.writer
+    }
+}
+
+impl<W: Write, P: Progress> Write for ProgressWriter<W, P> {
+    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+        let bytes = self.writer.write(buf)?;
+        self.progress.update(bytes as u64);
+        Ok(bytes)
+    }
+
+    fn flush(&mut self) -> Result<()> {
+        self.writer.flush()
+    }
+}
+
+pub struct ProgressReader<R: Read, P: Progress> {
+    reader: R,
+    progress: P,
+}
+
+impl<R: Read, P: Progress> ProgressReader<R, P> {
+    pub fn new(reader: R, progress: P) -> Self {
+        Self { reader, progress }
+    }
+}
+
+impl<R: Read, P: Progress> Read for ProgressReader<R, P> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        let bytes = self.reader.read(buf)?;
+        if bytes > 0 {
+            self.progress.update(bytes as u64);
+        }
+        Ok(bytes)
+    }
+}
 
 /// Write a stream to a file
 /// 
