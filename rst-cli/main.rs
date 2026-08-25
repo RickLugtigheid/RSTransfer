@@ -18,6 +18,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands  {
     /// Send a file over raw TCP
+    #[command(alias = "s")]
     Send {
         /// File to send
         #[arg(short, long, default_value = "")]
@@ -40,6 +41,7 @@ enum Commands  {
         gzip: bool,
     },
     /// Receive a file over raw TCP
+    #[command(alias = "r")]
     Recv {
         /// Destination file
         #[arg(short, long, default_value = "")]
