@@ -1,7 +1,7 @@
 
 [package]
 name = "rst-cli"
-version = "1.0.0"
+version = "1.1.0"
 description = "A lightweight command-line tool for Raw Socket (file) Transfer."
 authors = ["Rick Lugtigheid <rlugtigheid77@gmail.com>"]
 license = "MIT"
