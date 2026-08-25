@@ -72,6 +72,7 @@ fn main() -> Result<()> {
             file,
             dir,
             host,
+            host_option,
             port,
             gzip,
         } => {
