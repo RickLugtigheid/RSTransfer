@@ -28,9 +28,12 @@ enum Commands  {
         #[arg(short, long, default_value = "")]
         dir: String,
 
-        /// Host to send to
-        #[arg(short, long)]
-        host: String,
+        /// Destination host
+        #[arg(value_name = "HOST")]
+        host: Option<String>,
+        
+        #[arg(short = 'h', long = "host", value_name = "HOST")]
+        host_option: Option<String>,
 
         /// Port to connect to [default: 7777]
         #[arg(short, long, default_value = "7777")]
@@ -72,7 +75,8 @@ fn main() -> Result<()> {
             port,
             gzip,
         } => {
-
+            let host = host.or(host_option).expect("host is required");
+            
             // Is file or dir specified?
             //
             if file.is_empty() && dir.is_empty() {
