@@ -40,9 +40,10 @@ pub fn send_dir(mut stream: TcpStream, dir_path: &str, options: SendOptions) {
             error::Error::ReadFailed.exit();
         }
 
-        // Finish tar
+        // Finish the operation
         let encoder = tar.into_inner().unwrap();
-        encoder.finish().unwrap();
+        let finished_writer = encoder.finish().unwrap();
+        let _stream = finished_writer.finish();
     } else {
         let mut tar = Builder::new(progress_writer);
 
@@ -50,7 +51,9 @@ pub fn send_dir(mut stream: TcpStream, dir_path: &str, options: SendOptions) {
             error::Error::ReadFailed.exit();
         }
 
-        tar.finish().unwrap();
+        // Finish the operation
+        let finished_writer = tar.into_inner().unwrap();
+        let _stream = finished_writer.finish();
     }
 }
 
