@@ -1,5 +1,6 @@
 
 pub enum Error {
+    MissingArgument(String),
     InvalidHost(String),
     UnableToConnect(String, u16),
     UnableToListen(u16),
@@ -24,6 +25,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let prefix = "\x1b[1m\x1b[91merror\x1b[0m:";
         match self {
+            Error::MissingArgument(arg) => write!(f, "{} {} is required", prefix, arg),
             Error::InvalidHost(host) => write!(f, "{} Invalid host argument '{}'", prefix, host),
             Error::UnableToConnect(host, port) => write!(f, "{} Unable to connect to host '{}' on port '{}'", prefix, host, port),
             Error::UnableToListen(port) => write!(f, "{} Unable to listen on port '{}'", prefix, port),
