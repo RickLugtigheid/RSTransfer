@@ -12,7 +12,7 @@ use crate::{error, io::stream::{ProgressReader, ProgressWriter}, print_verbose, 
 /// * `dir_path` - The path to the directory to send
 /// * `options` - The options for the send operation
 ///
-pub fn send_dir(mut stream: TcpStream, dir_path: &str, options: SendOptions) {
+pub fn send_dir(stream: TcpStream, dir_path: &str, options: SendOptions) {
     let path = Path::new(dir_path);
     if !path.is_dir() {
         error::Error::DirNotFound(dir_path.to_string()).exit();
@@ -65,7 +65,7 @@ pub fn send_dir(mut stream: TcpStream, dir_path: &str, options: SendOptions) {
 /// * `dir_path` - The path to the directory to receive
 /// * `options` - The options for the receive operation
 ///
-pub fn recv_dir(mut stream: TcpStream, dir_path: &str, options: RecvOptions) {
+pub fn recv_dir(stream: TcpStream, dir_path: &str, options: RecvOptions) {
     let path = Path::new(dir_path);
 
     if let Err(_) = fs::create_dir_all(path) {
