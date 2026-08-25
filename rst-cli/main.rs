@@ -76,7 +76,11 @@ fn main() -> Result<()> {
             port,
             gzip,
         } => {
-            let host = host.or(host_option).expect("host is required");
+            let host = host.or(host_option);
+            if host.is_none() {
+                Error::MissingArgument("host".to_string()).exit();
+            }
+            let host = host.unwrap();
             
             // Is file or dir specified?
             //
